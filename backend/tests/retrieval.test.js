@@ -12,7 +12,7 @@
 import 'dotenv/config';
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { getActiveQuestion, findGroundingMatches } from '../server/pipeline/retrieval.js';
+import { getActiveQuestion, findGroundingMatches } from '../pipeline/retrieval.js';
 
 // Guard: skip if API keys are not set
 const hasKeys = process.env.GOOGLE_AI_STUDIO_API_KEY && process.env.PINECONE_API_KEY;
