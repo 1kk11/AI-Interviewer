@@ -80,7 +80,19 @@ export function handleConnection(ws) {
         
         // 1. STT
         ws.send(JSON.stringify({ type: 'status', status: 'transcribing' }));
-        const transcript = await transcribeAudio(data, session.language, session.id);
+        
+        const questionIndex = session.currentQuestionIndex + 1;
+        const questionId = `q${questionIndex.toString().padStart(2, '0')}`;
+        const activeQuestion = await getActiveQuestion(questionId, session.language, session, true);
+
+        const sttContext = {
+          companyName: session.companyName,
+          jobTitle: session.jobTitle,
+          projectName: session.candidateImpressiveProject?.name,
+          rubricKeyphrases: activeQuestion?.rubricKeyphrases || activeQuestion?.rubric_keyphrases || []
+        };
+
+        const transcript = await transcribeAudio(data, session.language, session.id, sttContext);
         
         console.log(`[WS] STT transcript value: ${JSON.stringify(transcript)}`);
 
@@ -96,18 +108,13 @@ export function handleConnection(ws) {
         
         ws.send(JSON.stringify({ type: 'transcript', text: transcript, role: 'user' }));
 
-        // 2. Evaluate Answer
+        // 2. Evaluate Answer (only during active technical interview, not during time-up wrap-up phase)
         ws.send(JSON.stringify({ type: 'status', status: 'thinking' }));
-        
-        const questionIndex = session.currentQuestionIndex + 1;
-        const questionId = `q${questionIndex.toString().padStart(2, '0')}`;
-        // Evaluate the candidate's answer against the target question
-        const activeQuestion = await getActiveQuestion(questionId, session.language, session, true);
         
         let evaluation = null;
         let routingDecision = { action: 'advance', missedKeyphrases: [] };
         
-        if (activeQuestion) {
+        if (!session.isTimeUp && activeQuestion) {
           evaluation = await evaluateAnswer(transcript, activeQuestion, session.language, session.id);
           console.log(`[Orchestrator] Evaluation coverage: ${evaluation.coveragePercent}%`);
           
@@ -134,7 +141,7 @@ export function handleConnection(ws) {
           // Store evaluation on session
           session.history.push({ role: 'candidate', content: transcript, evaluation, questionId });
         } else {
-          session.history.push({ role: 'candidate', content: transcript, questionId });
+          session.history.push({ role: 'candidate', content: transcript });
         }
 
         // 3. LLM Interviewer Response

@@ -10,7 +10,6 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Groq from 'groq-sdk';
 import { Pinecone } from '@pinecone-database/pinecone';
 import { embedText } from './embeddings.js';
 
@@ -104,7 +103,7 @@ export async function generateTailoredQuestions(session) {
 /**
  * Deterministic fetch — pull active reference question by ID.
  * Priority:
- * 1. Session Dynamic Questions (generated from Resume/JD via Groq)
+ * 1. Session Dynamic Questions (generated from Resume/JD via Multi-Agent LLM)
  * 2. Pinecone Vector DB (if PINECONE_API_KEY is present)
  * 3. Static qa-dataset.json fallback
  *

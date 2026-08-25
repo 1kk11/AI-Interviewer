@@ -31,7 +31,7 @@ function cleanModelOutput(text) {
 
 /**
  * Generate the AI's response to the user's transcript.
- * Retrieves grounding context, builds prompt, and calls Groq with 429 retries.
+ * Retrieves grounding context, builds prompt, and calls Azure OpenAI (gpt-4o-mini).
  *
  * @param {string} userTranscript - The STT output of the candidate's answer
  * @param {object} session - The current session object from the store
@@ -79,8 +79,8 @@ YOUR MANDATES:
 1. Speak strictly in ${langName}.
 2. Keep your spoken response concise (2-4 sentences maximum).
 3. Do NOT output any thinking, reasoning tags, or metadata. Output ONLY your direct spoken words.
-4. If the candidate says "no", has no questions, or wants to end, say thank you, wish them a pleasant day, say goodbye, and stop.
-5. If the candidate asks a question (such as about their performance/feedback, the company, or next steps):
+4. If the candidate says "no", has no questions, remains silent, or gives unclear/short phrases (e.g. noise, "thanks", "ok"), politely thank them for their time today, express appreciation for speaking with them, wish them a wonderful day, say goodbye, and stop. Do NOT say "it seems there was a misunderstanding".
+5. If the candidate asks an actual substantive question (such as about their performance/feedback, the company, or next steps):
    - Answer their question politely, constructively, and diplomatically.
    - If they ask about their performance, look at the conversation history. Summarize it diplomatically, focusing on encouraging them, highlighting what they did well (e.g. key technical concepts covered), and mention that the final evaluation will be processed.
    - Crucially, in the SAME response after answering their question, conclude the interview by saying thank you and goodbye. Do not invite further questions.`;

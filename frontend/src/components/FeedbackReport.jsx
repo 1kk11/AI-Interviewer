@@ -74,6 +74,9 @@ export default function FeedbackReport({ feedback, onRestart }) {
         q.rubric_keyphrases_covered?.join(', ') || '-',
         q.rubric_keyphrases_missed?.join(', ') || '-'
       ]);
+
+      const printableWidth = pageWidth - 28;
+      const col23Width = (printableWidth - 35) / 2;
       
       autoTable(doc, {
         startY: yPos,
@@ -81,12 +84,12 @@ export default function FeedbackReport({ feedback, onRestart }) {
         body: tableData,
         theme: 'striped',
         headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
-        styles: { font: 'helvetica', fontSize: 10, cellPadding: 5, overflow: 'linebreak' },
+        styles: { font: 'helvetica', fontSize: 9, cellPadding: 4, overflow: 'linebreak' },
         columnStyles: {
-          0: { cellWidth: 15, fontStyle: 'bold' },
-          1: { cellWidth: 20 },
-          2: { cellWidth: 'auto' },
-          3: { cellWidth: 'auto' }
+          0: { cellWidth: 15, fontStyle: 'bold', halign: 'center' },
+          1: { cellWidth: 20, halign: 'center' },
+          2: { cellWidth: col23Width },
+          3: { cellWidth: col23Width }
         }
       });
       
@@ -96,6 +99,7 @@ export default function FeedbackReport({ feedback, onRestart }) {
     // --- PAGE 2: Full Transcript ---
     if (feedback.history && feedback.history.length > 0) {
       doc.addPage();
+      if (typeof doc.setCharSpace === 'function') doc.setCharSpace(0);
       drawHeader('Full Transcript');
       
       yPos = 35;
@@ -124,11 +128,12 @@ export default function FeedbackReport({ feedback, onRestart }) {
         const bgColor = [250, 250, 250]; // Very light gray/white background
         const borderColor = isAI ? [41, 128, 185] : [39, 174, 96];
 
-        // Calculate text height securely using splitTextToSize
+        // Reset character spacing & formatting before calculation
+        if (typeof doc.setCharSpace === 'function') doc.setCharSpace(0);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         
-        // splitTextToSize guarantees the text will wrap exactly at textMaxWidth and removes buggy jsPDF kerning
+        // splitTextToSize guarantees the text will wrap exactly at textMaxWidth
         const textLines = doc.splitTextToSize(textContent, textMaxWidth);
         const textDimensions = doc.getTextDimensions(textLines);
         
@@ -139,6 +144,7 @@ export default function FeedbackReport({ feedback, onRestart }) {
         // Add page break if this box won't fit
         if (yPos + boxHeight > pageHeight - 15) {
           doc.addPage();
+          if (typeof doc.setCharSpace === 'function') doc.setCharSpace(0);
           drawHeader('Full Transcript (Cont.)');
           yPos = 35;
         }
@@ -153,6 +159,7 @@ export default function FeedbackReport({ feedback, onRestart }) {
         
         // Draw Role Header
         let currentY = yPos + textPadding + 4;
+        if (typeof doc.setCharSpace === 'function') doc.setCharSpace(0);
         doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(...headColor);
@@ -160,8 +167,8 @@ export default function FeedbackReport({ feedback, onRestart }) {
         
         currentY += 6;
         
-        // Draw Message Text - pass the split text array directly! 
-        // This stops jsPDF from applying artificial letter spacing or overflowing.
+        // Draw Message Text with explicit zero char spacing
+        if (typeof doc.setCharSpace === 'function') doc.setCharSpace(0);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(70, 70, 70); 

@@ -21,11 +21,11 @@ The backend is built with Node.js and Express. It also serves a WebSocket connec
    - It will prompt you for the required environment variables. Copy the values from your local `.env` file:
      - `AZURE_OPENAI_KEY`: Your Azure OpenAI API key.
      - `AZURE_OPENAI_ENDPOINT`: Your Azure OpenAI endpoint.
-     - `GROQ_API_KEY`: Your Groq API key (for Whisper STT).
+     - `GROQ_API_KEY`: Your Whisper STT API key.
      - `GOOGLE_AI_STUDIO_API_KEY`: Your Google Gemini API key (for embeddings).
      - `ELEVENLABS_API_KEY`: Your ElevenLabs API key (for TTS).
      - `PINECONE_API_KEY`: Your Pinecone API key.
-   - Note: Other variables like `PORT` (10000), `LLM_PROVIDER` (`azure_openai`), `PINECONE_INDEX` (`ai-intern-qa`), `DEFAULT_LANGUAGE` (`en`), and `GROQ_LLM_MODEL` have pre-filled default values.
+   - Note: Other variables like `PORT` (10000), `LLM_PROVIDER` (`azure_openai`), `PINECONE_INDEX` (`ai-intern-qa`), and `DEFAULT_LANGUAGE` (`en`) have pre-filled default values.
 5. **Approve and Deploy**:
    - Click **Approve**. Render will provision your service.
    - Under the hood, it sets the root directory to `backend`, runs `npm install`, and starts the server using `npm start`.

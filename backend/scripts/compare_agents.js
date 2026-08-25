@@ -1,5 +1,4 @@
 import { generateTailoredQuestions } from '../pipeline/retrieval.js';
-import Groq from 'groq-sdk';
 import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' });
 

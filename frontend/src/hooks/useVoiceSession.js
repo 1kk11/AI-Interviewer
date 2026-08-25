@@ -16,8 +16,11 @@ export function useVoiceSession() {
   const [transcript, setTranscript] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [questionIndex, setQuestionIndex] = useState(1);
+  const [analyser, setAnalyser] = useState(null);
   
   const wsRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
   const audioQueueRef = useRef([]);
   const isPlayingRef = useRef(false);
   const currentAudioRef = useRef(null);  // Track current Audio element for immediate stop
@@ -27,11 +30,51 @@ export function useVoiceSession() {
     // If the session was stopped, don't play
     if (stoppedRef.current) return;
 
+    // Use Web Audio API BufferSource for 100% reliable analyser frequency data
+    if (audioContextRef.current && analyserRef.current) {
+      const ctx = audioContextRef.current;
+      if (ctx.state === 'suspended') {
+        try {
+          await ctx.resume();
+        } catch (e) {
+          console.warn('[AudioContext] Resume error:', e);
+        }
+      }
+
+      try {
+        const arrayBuffer = await blob.arrayBuffer();
+        const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+
+        if (stoppedRef.current) return;
+
+        return new Promise((resolve) => {
+          const source = ctx.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(analyserRef.current);
+          analyserRef.current.connect(ctx.destination);
+
+          currentAudioRef.current = source;
+
+          source.onended = () => {
+            if (currentAudioRef.current === source) {
+              currentAudioRef.current = null;
+            }
+            resolve();
+          };
+
+          source.start(0);
+        });
+      } catch (err) {
+        console.warn('[AudioContext] decodeAudioData failed, using fallback:', err);
+      }
+    }
+
+    // Fallback to HTMLAudioElement
     const mp3Blob = new Blob([blob], { type: 'audio/mpeg' });
     const url = URL.createObjectURL(mp3Blob);
     const audio = new Audio(url);
     currentAudioRef.current = audio;
-    
+
     return new Promise((resolve) => {
       audio.onended = () => {
         URL.revokeObjectURL(url);
@@ -58,8 +101,14 @@ export function useVoiceSession() {
     isPlayingRef.current = false;
     setIsAudioPlaying(false);
     if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current.src = '';
+      if (typeof currentAudioRef.current.stop === 'function') {
+        try {
+          currentAudioRef.current.stop();
+        } catch (e) {}
+      } else if (typeof currentAudioRef.current.pause === 'function') {
+        currentAudioRef.current.pause();
+        currentAudioRef.current.src = '';
+      }
       currentAudioRef.current = null;
     }
   }, []);
@@ -124,6 +173,20 @@ export function useVoiceSession() {
       setErrorMsg('');
       setLanguage(lang);
       setQuestionIndex(1);
+
+      // Initialize Web Audio API on user interaction
+      if (!audioContextRef.current) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioContextClass();
+        audioContextRef.current = ctx;
+        const analyserNode = ctx.createAnalyser();
+        analyserNode.fftSize = 256;
+        analyserRef.current = analyserNode;
+        setAnalyser(analyserNode);
+      }
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
+      }
       
       let sid = preCreatedSessionId;
       if (!sid) {
@@ -158,6 +221,16 @@ export function useVoiceSession() {
     // IMMEDIATELY stop all audio
     stopAllAudio();
     setStatus('analyzing'); // Show immediate UI feedback
+
+    // Close AudioContext to release system resources
+    if (audioContextRef.current) {
+      if (audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close().catch(e => console.log('[AudioContext] Close error:', e));
+      }
+      audioContextRef.current = null;
+      analyserRef.current = null;
+      setAnalyser(null);
+    }
 
     if (wsRef.current) {
       wsRef.current.close();
@@ -206,6 +279,7 @@ export function useVoiceSession() {
     endSession,
     sendAudio,
     nextQuestion,
-    sendControlMessage
+    sendControlMessage,
+    analyser
   };
 }

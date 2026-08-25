@@ -2,7 +2,7 @@
  * i18n / locale configuration.
  *
  * Maps supported languages to:
- * - STT language hints (for Groq Whisper)
+ * - STT language hints (for Whisper STT)
  * - TTS voice IDs (for ElevenLabs — placeholders until Phase 7)
  * - UI labels and prompt language instructions
  */

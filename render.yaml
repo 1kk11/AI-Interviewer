@@ -19,8 +19,6 @@ services:
         value: gpt-4o-mini
       - key: GROQ_API_KEY
         sync: true
-      - key: GROQ_LLM_MODEL
-        value: openai/gpt-oss-20b
       - key: GOOGLE_AI_STUDIO_API_KEY
         sync: true
       - key: ELEVENLABS_API_KEY

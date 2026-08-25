@@ -29,13 +29,13 @@ Keeping the LLM behaving like an interviewer rather than an encyclopedic chatbot
 
 Voice agents must feel responsive to maintain a natural conversational flow. In our pipeline, latency is distributed across three main phases:
 
-1. **Speech-to-Text (STT):** We use Groq's Whisper API. Because we use a "Hold-to-Talk" mechanism, STT cannot begin until the user releases the button and the audio Blob is uploaded.
-2. **LLM Inference:** We use `llama-3.3-70b-versatile` via Groq. The prompt is large (containing the system instructions and full conversation history).
-3. **Text-to-Speech (TTS):** We use ElevenLabs for high-quality voice synthesis.
+1. **Speech-to-Text (STT):** We use high-speed Whisper API (`whisper-large-v3-turbo`). Because we use a "Hold-to-Talk" mechanism, STT processes the audio buffer immediately upon button release.
+2. **LLM Inference:** We use Azure OpenAI (`gpt-4o-mini`) for low-latency, high-accuracy conversational intelligence.
+3. **Text-to-Speech (TTS):** We use high-speed speech synthesis for natural voice output.
 
 **Current Optimizations:**
-- **TTS Streaming:** Instead of waiting for ElevenLabs to generate the entire audio file, we pipe the `ReadableStream` directly from the API through our WebSocket to the client. The browser begins playing the binary chunks immediately, drastically reducing Time-to-First-Byte (TTFB).
-- **LPU Inference:** Groq's Language Processing Units process the LLM inference much faster than traditional GPUs, minimizing phase 2 latency.
+- **TTS Fast Streaming:** Audio chunks are synthesized with optimized batching and streamed directly via WebSocket to the client. The browser begins playing immediately, reducing Time-to-First-Byte (TTFB).
+- **Fast LLM Inference:** Azure OpenAI `gpt-4o-mini` delivers sub-second response times for prompt reasoning and natural conversation management.
 
 **How we would reduce it further:**
 1. **Continuous Voice Activity Detection (VAD):** Instead of Hold-to-Talk, implementing client-side VAD (WebRTC) would allow us to stream audio chunks continuously. STT could transcribe in real-time, completely eliminating the upload delay at the end of the user's speech.

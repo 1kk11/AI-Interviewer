@@ -13,13 +13,14 @@ export default function InterviewStage({ language, sessionId, onEnd }) {
     endSession,
     sendAudio,
     nextQuestion,
-    sendControlMessage
+    sendControlMessage,
+    analyser
   } = useVoiceSession();
 
   const startedRef = useRef(false);
   const videoRef = useRef(null);
   const scrollRef = useRef(null);
-  const aiVideoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   // Mic recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -61,42 +62,303 @@ export default function InterviewStage({ language, sessionId, onEnd }) {
     };
   }, [status, timeUpSent, sendControlMessage]);
 
-  // AI Avatar Video Control
-  const rewindIntervalRef = useRef(null);
-  
   const isAgentSpeaking = status === 'speaking' || isAudioPlaying;
 
+  // Live Audio Canvas Visualizer (Gold Circular Microphone Visualizer)
   useEffect(() => {
-    if (aiVideoRef.current) {
-      if (isAgentSpeaking) {
-        // Clear any rewinding logic
-        if (rewindIntervalRef.current) {
-          clearInterval(rewindIntervalRef.current);
-          rewindIntervalRef.current = null;
-        }
-        aiVideoRef.current.play().catch(e => console.log('[AI Avatar] Play error:', e));
-      } else {
-        // AI stopped speaking: rewind back to frame 0 smoothly
-        aiVideoRef.current.pause();
-        
-        if (!rewindIntervalRef.current) {
-          rewindIntervalRef.current = setInterval(() => {
-            if (aiVideoRef.current) {
-              if (aiVideoRef.current.currentTime <= 0.1) {
-                // Reached the start (Planet state)
-                aiVideoRef.current.currentTime = 0;
-                clearInterval(rewindIntervalRef.current);
-                rewindIntervalRef.current = null;
-              } else {
-                // Rewind by 0.1s every 40ms (~2.5x speed reverse)
-                aiVideoRef.current.currentTime -= 0.1;
-              }
-            }
-          }, 40);
-        }
-      }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId = null;
+    
+    // Resize handler with high DPI support
+    const resizeCanvas = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    };
+    
+    resizeCanvas();
+    
+    // Resize Observer to handle container resizing dynamically
+    const resizeObserver = new ResizeObserver(() => {
+      resizeCanvas();
+    });
+    if (canvas.parentElement) {
+      resizeObserver.observe(canvas.parentElement);
     }
-  }, [isAgentSpeaking]);
+    
+    let phase = 0;
+    
+    const draw = () => {
+      animationFrameId = requestAnimationFrame(draw);
+      
+      const width = canvas.width / window.devicePixelRatio;
+      const height = canvas.height / window.devicePixelRatio;
+      if (width === 0 || height === 0) return;
+      
+      // Clear with dark fade effect for motion blur trails (matching #141414)
+      ctx.fillStyle = 'rgba(20, 20, 20, 0.25)';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Get frequency/amplitude data from AnalyserNode
+      const bufferLength = analyser ? analyser.frequencyBinCount : 0;
+      const dataArray = (analyser && isAudioPlaying) ? new Uint8Array(bufferLength) : null;
+      let volume = 0;
+      
+      if (dataArray && analyser) {
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i];
+        }
+        volume = sum / bufferLength; // Range: 0 to 255
+      }
+      
+      // Normalize volume to 0..1 range with responsive thresholding
+      const normalizedVolume = isAudioPlaying ? Math.min(1, Math.max(0, (volume - 8) / 90)) : 0;
+      
+      // Dynamic target amplitude: reactive to AI speech volume, steady fluid idle
+      const targetAmp = isAudioPlaying ? (4.0 + normalizedVolume * 8.5) : 2.2;
+      
+      // Smooth amplitude transitions using linear interpolation
+      if (canvas.currentAmp === undefined) canvas.currentAmp = targetAmp;
+      canvas.currentAmp += (targetAmp - canvas.currentAmp) * 0.20;
+      const currentAmp = canvas.currentAmp;
+      
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const minDimension = Math.min(width, height);
+      
+      const baseRadius = minDimension * 0.28; // Radius of outer ring
+      const rBrackets = minDimension * 0.21; // Radius of left/right bracket arcs
+      const rInner = minDimension * 0.17;    // Radius of inner circle
+      const micSize = minDimension * 0.12;    // Scale of central microphone
+      
+      // 1. Draw central microphone icon (crisp vector)
+      const drawMicrophone = (ctx, cx, cy, size) => {
+        ctx.save();
+        ctx.strokeStyle = '#ffc800'; // Rich Gold
+        ctx.fillStyle = 'rgba(255, 200, 0, 0.08)'; // Gold tint
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        const w = size * 0.52; // Width of capsule
+        const h = size * 0.95; // Height of capsule
+        const rx = cx - w / 2;
+        const ry = cy - h / 2 - size * 0.1; // Lift slightly
+
+        // Capsule path (manual rounded rectangle)
+        ctx.beginPath();
+        const r = w / 2;
+        ctx.moveTo(rx + r, ry);
+        ctx.lineTo(rx + w - r, ry);
+        ctx.quadraticCurveTo(rx + w, ry, rx + w, ry + r);
+        ctx.lineTo(rx + w, ry + h * 0.7 - r);
+        ctx.quadraticCurveTo(rx + w, ry + h * 0.7, rx + w - r, ry + h * 0.7);
+        ctx.lineTo(rx + r, ry + h * 0.7);
+        ctx.quadraticCurveTo(rx, ry + h * 0.7, rx, ry + h * 0.7 - r);
+        ctx.lineTo(rx, ry + r);
+        ctx.quadraticCurveTo(rx, ry, rx + r, ry);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Grill details
+        ctx.beginPath();
+        ctx.lineWidth = 1.8;
+        ctx.strokeStyle = 'rgba(255, 200, 0, 0.6)';
+        // Horizontal divider
+        ctx.moveTo(rx + 3, ry + h * 0.35);
+        ctx.lineTo(rx + w - 3, ry + h * 0.35);
+        // Vertical lines
+        ctx.moveTo(cx - w * 0.18, ry + 5);
+        ctx.lineTo(cx - w * 0.18, ry + h * 0.7 - 5);
+        ctx.moveTo(cx, ry + 3);
+        ctx.lineTo(cx, ry + h * 0.7 - 3);
+        ctx.moveTo(cx + w * 0.18, ry + 5);
+        ctx.lineTo(cx + w * 0.18, ry + h * 0.7 - 5);
+        ctx.stroke();
+
+        // Cradle (U-shape)
+        ctx.beginPath();
+        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = '#ffc800';
+        ctx.arc(cx, cy - size * 0.1, w * 0.85, 0, Math.PI, false);
+        ctx.stroke();
+
+        // Cradle Stem
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - size * 0.1 + w * 0.85);
+        ctx.lineTo(cx, cy + h * 0.42);
+        ctx.stroke();
+
+        // Base Plate
+        ctx.beginPath();
+        ctx.moveTo(cx - w * 0.65, cy + h * 0.42);
+        ctx.lineTo(cx + w * 0.65, cy + h * 0.42);
+        ctx.stroke();
+
+        ctx.restore();
+      };
+      
+      drawMicrophone(ctx, centerX, centerY, micSize);
+      
+      // 2. Draw inner concentric solid ring
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255, 200, 0, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.arc(centerX, centerY, rInner, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // 3. Draw symmetric bracket arcs (left & right)
+      ctx.save();
+      ctx.strokeStyle = '#ffc800';
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      
+      // Left arc (120 to 240 degrees)
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, rBrackets, 2 * Math.PI / 3, 4 * Math.PI / 3);
+      ctx.stroke();
+      
+      // Right arc (-60 to 60 degrees)
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, rBrackets, -Math.PI / 3, Math.PI / 3);
+      ctx.stroke();
+      ctx.restore();
+      
+      // 4. J.A.R.V.I.S HUD Outer Orbit Ring (Subtle tech elements)
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 200, 0, 0.22)';
+      ctx.lineWidth = 1.0;
+      ctx.setLineDash([3, 9]);
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, baseRadius + 14, phase * 0.25, phase * 0.25 + Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // 4 Corner HUD Tech Notches
+      const numNotches = 4;
+      for (let n = 0; n < numNotches; n++) {
+        const notchAngle = (n * Math.PI / 2) + (Math.PI / 4) + (phase * 0.1);
+        const r1 = baseRadius + 11;
+        const r2 = baseRadius + 17;
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(255, 200, 0, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.moveTo(centerX + Math.cos(notchAngle) * r1, centerY + Math.sin(notchAngle) * r1);
+        ctx.lineTo(centerX + Math.cos(notchAngle) * r2, centerY + Math.sin(notchAngle) * r2);
+        ctx.stroke();
+      }
+      ctx.restore();
+      
+      // 5. Draw Dynamic J.A.R.V.I.S Fluid Voice Waves (Outer Circle)
+      const drawJarvisWave = (radius, color, lineWidth, harmonics, speedMultiplier, offsetPhase) => {
+        ctx.beginPath();
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = color;
+        
+        const points = 240;
+        for (let i = 0; i <= points; i++) {
+          const angle = (i / points) * Math.PI * 2;
+          
+          // Sample real audio frequencies symmetrically across the perimeter
+          let freqOffset = 0;
+          if (dataArray && dataArray.length > 0) {
+            const symAngle = Math.abs(Math.sin(angle));
+            const binIndex = Math.min(dataArray.length - 1, Math.floor(symAngle * 48));
+            const binVal = dataArray[binIndex] / 255;
+            freqOffset = binVal * (currentAmp * 0.85);
+          }
+          
+          const currentPhase = phase * speedMultiplier + offsetPhase;
+          let waveOffset = 0;
+          for (let h = 0; h < harmonics.length; h++) {
+            const { n, a, s } = harmonics[h];
+            waveOffset += Math.sin(angle * n - currentPhase * s) * a;
+          }
+          
+          // Scale displacement with speech intensity (traveling harmonic wave)
+          const r = radius + (waveOffset * (currentAmp / 3.2)) + freqOffset;
+          const x = centerX + Math.cos(angle) * r;
+          const y = centerY + Math.sin(angle) * r;
+          
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.closePath();
+        ctx.stroke();
+      };
+      
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.shadowBlur = isAudioPlaying ? 10 : 6;
+      ctx.shadowColor = 'rgba(255, 200, 0, 0.5)';
+      
+      // Wave 1: Amber Gold base wave (4 & 8 harmonic traveling waves)
+      drawJarvisWave(
+        baseRadius - 2,
+        'rgba(255, 175, 0, 0.65)',
+        1.8,
+        [
+          { n: 4, a: 2.8, s: 1.0 },
+          { n: 7, a: 1.4, s: -1.2 },
+          { n: 11, a: 0.8, s: 1.5 }
+        ],
+        1.2,
+        0
+      );
+      
+      // Wave 2: Main Vibrant Gold wave (Primary speech ripple)
+      drawJarvisWave(
+        baseRadius,
+        'rgba(255, 210, 0, 0.95)',
+        2.8,
+        [
+          { n: 5, a: 3.6, s: 1.2 },
+          { n: 8, a: 1.8, s: -0.9 },
+          { n: 13, a: 1.0, s: 1.6 }
+        ],
+        1.4,
+        Math.PI / 3
+      );
+      
+      // Wave 3: Bright Pale/White-Gold highlight wave
+      drawJarvisWave(
+        baseRadius + 2,
+        'rgba(255, 248, 220, 0.85)',
+        1.6,
+        [
+          { n: 6, a: 2.5, s: 0.9 },
+          { n: 9, a: 1.2, s: -1.4 },
+          { n: 14, a: 0.7, s: 1.3 }
+        ],
+        1.1,
+        -Math.PI / 4
+      );
+      
+      ctx.restore();
+      
+      // Phase speed updates: fluid rotation pace that accelerates with speech
+      phase += isAudioPlaying ? (0.05 * (1 + normalizedVolume * 1.6)) : 0.02;
+    };
+    
+    draw();
+    
+    return () => {
+      resizeObserver.disconnect();
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [analyser, isAudioPlaying]);
 
   // Active question text
   const activeQuestionText = transcript.slice().reverse().find(m => m.role === 'ai')?.text 
@@ -374,14 +636,10 @@ export default function InterviewStage({ language, sessionId, onEnd }) {
       <main className="call-main-grid">
         {/* Left Panel: AI Interviewer */}
         <div className={`video-panel ai-panel ${isAgentSpeaking ? 'is-speaking' : ''}`}>
-          <video 
-            ref={aiVideoRef}
-            src="/sample_motion_graphic_animation.mp4" 
-            className="video-feed-img ai-avatar-video"
-            loop
-            muted
-            playsInline
-            style={{ objectFit: 'contain', width: '100%', height: '100%', backgroundColor: '#000' }}
+          <canvas 
+            ref={canvasRef}
+            className="video-feed-img ai-avatar-canvas"
+            style={{ width: '100%', height: '100%', display: 'block', backgroundColor: '#141414' }}
           />
           
           {/* Top-Left Overlay Tag */}

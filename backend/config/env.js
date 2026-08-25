@@ -1,9 +1,6 @@
 /**
  * Central configuration — reads env vars once, validates what's needed
  * for the current phase, and exports a typed config object.
- *
- * Keys that aren't needed yet (e.g. GROQ_API_KEY before Phase 5) are
- * exported but not validated, so the server can boot without them.
  */
 
 function requireEnv(name) {
@@ -24,16 +21,22 @@ export const config = {
   port: parseInt(optionalEnv('PORT', '4000'), 10),
   defaultLanguage: optionalEnv('DEFAULT_LANGUAGE', 'en'),
 
-  // STT — Groq Whisper (required from Phase 5)
-  groqApiKey: optionalEnv('GROQ_API_KEY'),
+  // LLM — Azure OpenAI (ChatGPT gpt-4o-mini)
+  azureOpenAiKey: optionalEnv('AZURE_OPENAI_KEY'),
+  azureOpenAiEndpoint: optionalEnv('AZURE_OPENAI_ENDPOINT'),
+  azureDeploymentName: optionalEnv('AZURE_DEPLOYMENT_NAME', 'gpt-4o-mini'),
+  llmProvider: optionalEnv('LLM_PROVIDER', 'azure_openai'),
 
-  // LLM — Gemini 2.5 Flash (required from Phase 6)
+  // STT — High-Speed Whisper STT
+  sttApiKey: optionalEnv('GROQ_API_KEY') || optionalEnv('WHISPER_API_KEY'),
+
+  // Embeddings — Google AI Studio (Gemini)
   googleAiStudioApiKey: optionalEnv('GOOGLE_AI_STUDIO_API_KEY'),
 
-  // TTS — ElevenLabs (required from Phase 7)
+  // TTS — ElevenLabs
   elevenLabsApiKey: optionalEnv('ELEVENLABS_API_KEY'),
 
-  // Vector DB — Pinecone (required from Phase 2)
+  // Vector DB — Pinecone
   pineconeApiKey: optionalEnv('PINECONE_API_KEY'),
   pineconeIndex: optionalEnv('PINECONE_INDEX', 'ai-intern-qa'),
 };
