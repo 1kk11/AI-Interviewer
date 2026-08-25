@@ -1,0 +1,98 @@
+.mic-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.mic-button {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.mic-button::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  opacity: 0.5;
+  transition: all 0.2s ease;
+}
+
+.mic-icon {
+  font-size: 32px;
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+
+.mic-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  background: var(--bg-hover);
+}
+
+/* Hold state */
+.mic-button:active:not(:disabled),
+.mic-button.recording {
+  transform: scale(0.95);
+  background: var(--danger);
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+}
+
+.mic-button.recording::before {
+  border-color: transparent;
+  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.mic-button.recording .mic-icon {
+  transform: scale(1.1);
+}
+
+/* Busy state (transcribing, thinking, speaking) */
+.mic-button.busy {
+  background: var(--accent-muted);
+  cursor: not-allowed;
+}
+.mic-button.busy::before {
+  border-color: var(--accent);
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+.mic-button.busy .mic-icon {
+  opacity: 0.5;
+}
+
+.mic-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mic-status {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.5); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

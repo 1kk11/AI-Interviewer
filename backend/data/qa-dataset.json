@@ -1,0 +1,258 @@
+[
+  {
+    "id": "q01",
+    "category": "ml-fundamentals",
+    "difficulty": "medium",
+    "question": {
+      "en": "Explain the bias-variance tradeoff.",
+      "hi": "बायस-वेरिएंस ट्रेडऑफ़ को समझाइए।",
+      "de": "Erklären Sie den Bias-Varianz-Tradeoff."
+    },
+    "ideal_answer": {
+      "en": "Bias is error from overly simple assumptions (underfitting), variance is error from sensitivity to training data noise (overfitting). Total error is bias² + variance + irreducible noise. Model complexity controls where you sit on that curve, and the goal is the sweet spot that minimizes validation error, not training error.",
+      "hi": "बायस अत्यधिक सरल धारणाओं से आने वाली त्रुटि है (अंडरफिटिंग), वेरिएंस ट्रेनिंग डेटा के शोर के प्रति संवेदनशीलता से आने वाली त्रुटि है (ओवरफिटिंग)। कुल त्रुटि = बायस² + वेरिएंस + अपरिवर्तनीय शोर। मॉडल जटिलता यह नियंत्रित करती है कि आप उस वक्र पर कहाँ हैं, और लक्ष्य वह मधुर बिंदु है जो सत्यापन त्रुटि को न्यूनतम करे, प्रशिक्षण त्रुटि को नहीं।",
+      "de": "Bias ist der Fehler durch zu einfache Annahmen (Underfitting), Varianz ist der Fehler durch Empfindlichkeit gegenüber Rauschen in den Trainingsdaten (Overfitting). Der Gesamtfehler ist Bias² + Varianz + irreduzibler Fehler. Die Modellkomplexität bestimmt, wo man auf dieser Kurve liegt, und das Ziel ist der optimale Punkt, der den Validierungsfehler minimiert, nicht den Trainingsfehler."
+    },
+    "rubric_keyphrases": [
+      "bias",
+      "variance",
+      "underfitting",
+      "overfitting",
+      "irreducible noise",
+      "model complexity",
+      "validation error",
+      "tradeoff"
+    ],
+    "follow_up_hint": "Ask for a concrete example of a high-bias vs high-variance model."
+  },
+  {
+    "id": "q02",
+    "category": "ml-fundamentals",
+    "difficulty": "medium",
+    "question": {
+      "en": "How would you handle a dataset with significant class imbalance?",
+      "hi": "आप महत्वपूर्ण क्लास असंतुलन वाले डेटासेट को कैसे संभालेंगे?",
+      "de": "Wie würden Sie mit einem Datensatz umgehen, der eine erhebliche Klassenungleichverteilung aufweist?"
+    },
+    "ideal_answer": {
+      "en": "Don't just look at accuracy — use precision/recall/F1/ROC-AUC per class. Techniques include resampling (oversample minority, undersample majority, SMOTE), class-weighted loss functions, and threshold tuning at inference time. Choice depends on whether false positives or false negatives are more costly for the use case.",
+      "hi": "केवल सटीकता न देखें — प्रति क्लास प्रिसिज़न/रिकॉल/F1/ROC-AUC का उपयोग करें। तकनीकों में रीसैम्पलिंग (अल्पसंख्यक को ओवरसैम्पल करें, बहुसंख्यक को अंडरसैम्पल करें, SMOTE), क्लास-वेटेड लॉस फ़ंक्शन, और इन्फ़रेंस समय पर थ्रेशोल्ड ट्यूनिंग शामिल हैं। चुनाव इस पर निर्भर करता है कि उपयोग मामले के लिए फ़ॉल्स पॉज़िटिव या फ़ॉल्स नेगेटिव अधिक महँगे हैं।",
+      "de": "Schauen Sie nicht nur auf die Genauigkeit — verwenden Sie Precision/Recall/F1/ROC-AUC pro Klasse. Techniken umfassen Resampling (Oversampling der Minderheit, Undersampling der Mehrheit, SMOTE), klassengewichtete Verlustfunktionen und Schwellenwertanpassung zur Inferenzzeit. Die Wahl hängt davon ab, ob falsch positive oder falsch negative Ergebnisse für den Anwendungsfall kostspieliger sind."
+    },
+    "rubric_keyphrases": [
+      "precision",
+      "recall",
+      "F1",
+      "ROC-AUC",
+      "resampling",
+      "SMOTE",
+      "class-weighted loss",
+      "threshold tuning",
+      "false positives",
+      "false negatives"
+    ],
+    "follow_up_hint": "Ask which metric they'd report to a non-technical stakeholder and why."
+  },
+  {
+    "id": "q03",
+    "category": "tooling",
+    "difficulty": "easy",
+    "question": {
+      "en": "What's the difference between a Python list and a NumPy array, and when would you use each?",
+      "hi": "पायथन लिस्ट और NumPy ऐरे में क्या अंतर है, और आप प्रत्येक का उपयोग कब करेंगे?",
+      "de": "Was ist der Unterschied zwischen einer Python-Liste und einem NumPy-Array, und wann würden Sie jeweils eines verwenden?"
+    },
+    "ideal_answer": {
+      "en": "Lists are heterogeneous, dynamically typed, flexible but slow for numeric work. NumPy arrays are homogeneous, fixed-type, contiguous in memory, and support vectorized operations that are far faster for numerical/array math. Use lists for general-purpose collections, NumPy for anything numeric at scale.",
+      "hi": "लिस्ट विषम, गतिशील रूप से टाइप की गई, लचीली लेकिन संख्यात्मक कार्य के लिए धीमी होती हैं। NumPy ऐरे सजातीय, निश्चित-प्रकार, मेमोरी में सन्निहित होते हैं, और वेक्टराइज़्ड ऑपरेशन का समर्थन करते हैं जो संख्यात्मक/ऐरे गणित के लिए बहुत तेज़ होते हैं। सामान्य-उद्देश्य संग्रह के लिए लिस्ट का उपयोग करें, बड़े पैमाने पर किसी भी संख्यात्मक कार्य के लिए NumPy का।",
+      "de": "Listen sind heterogen, dynamisch typisiert, flexibel aber langsam für numerische Arbeit. NumPy-Arrays sind homogen, fest typisiert, zusammenhängend im Speicher und unterstützen vektorisierte Operationen, die für numerische/Array-Mathematik viel schneller sind. Verwenden Sie Listen für allgemeine Sammlungen, NumPy für alles Numerische im großen Maßstab."
+    },
+    "rubric_keyphrases": [
+      "heterogeneous vs homogeneous",
+      "vectorized operations",
+      "contiguous memory",
+      "fixed type",
+      "performance",
+      "numeric at scale"
+    ],
+    "follow_up_hint": "Ask why vectorization is faster under the hood."
+  },
+  {
+    "id": "q04",
+    "category": "ml-fundamentals",
+    "difficulty": "medium",
+    "question": {
+      "en": "Explain overfitting and three ways to mitigate it.",
+      "hi": "ओवरफिटिंग को समझाइए और इसे कम करने के तीन तरीके बताइए।",
+      "de": "Erklären Sie Overfitting und drei Möglichkeiten, es zu verringern."
+    },
+    "ideal_answer": {
+      "en": "Overfitting is when a model memorizes training data patterns (including noise) instead of learning generalizable signal, showing as a gap between training and validation performance. Mitigations include regularization (L1/L2, dropout), more/better training data or augmentation, and early stopping or simpler architectures/cross-validation.",
+      "hi": "ओवरफिटिंग तब होती है जब मॉडल सामान्यीकरण योग्य सिग्नल सीखने के बजाय ट्रेनिंग डेटा पैटर्न (शोर सहित) को याद कर लेता है, जो ट्रेनिंग और सत्यापन प्रदर्शन के बीच अंतर के रूप में दिखाई देता है। समाधान में रेगुलराइज़ेशन (L1/L2, ड्रॉपआउट), अधिक/बेहतर ट्रेनिंग डेटा या ऑग्मेंटेशन, और अर्ली स्टॉपिंग या सरल आर्किटेक्चर/क्रॉस-वैलिडेशन शामिल हैं।",
+      "de": "Overfitting liegt vor, wenn ein Modell Trainingsdata-Muster (einschließlich Rauschen) auswendig lernt, anstatt verallgemeinerbares Signal zu lernen, was sich als Lücke zwischen Trainings- und Validierungsleistung zeigt. Gegenmaßnahmen umfassen Regularisierung (L1/L2, Dropout), mehr/bessere Trainingsdaten oder Augmentation sowie Early Stopping oder einfachere Architekturen/Kreuzvalidierung."
+    },
+    "rubric_keyphrases": [
+      "memorize training data",
+      "noise",
+      "generalizable",
+      "training vs validation gap",
+      "regularization",
+      "L1/L2",
+      "dropout",
+      "data augmentation",
+      "early stopping",
+      "cross-validation"
+    ],
+    "follow_up_hint": "Ask how they'd detect overfitting was happening in the first place."
+  },
+  {
+    "id": "q05",
+    "category": "behavioral",
+    "difficulty": "medium",
+    "question": {
+      "en": "Walk me through a machine learning project you've worked on, from data to results.",
+      "hi": "मुझे अपने किसी मशीन लर्निंग प्रोजेक्ट के बारे में बताइए, डेटा से लेकर परिणामों तक।",
+      "de": "Führen Sie mich durch ein Machine-Learning-Projekt, an dem Sie gearbeitet haben, von den Daten bis zu den Ergebnissen."
+    },
+    "ideal_answer": {
+      "en": "A strong answer includes: clear problem framing, what the data was and any cleaning/feature work, model choice and why, how it was evaluated, and an honest note on what didn't work or what they'd do differently. Depth and honesty matter more than the specific project.",
+      "hi": "एक अच्छे उत्तर में शामिल है: स्पष्ट समस्या परिभाषा, डेटा क्या था और कोई सफाई/फीचर कार्य, मॉडल चुनाव और क्यों, इसका मूल्यांकन कैसे किया गया, और क्या काम नहीं किया या वे अलग तरीके से क्या करेंगे इसकी ईमानदार टिप्पणी। गहराई और ईमानदारी विशिष्ट प्रोजेक्ट से अधिक मायने रखती है।",
+      "de": "Eine gute Antwort umfasst: klare Problemdefinition, was die Daten waren und welche Bereinigung/Feature-Arbeit durchgeführt wurde, Modellwahl und warum, wie es evaluiert wurde, und eine ehrliche Anmerkung darüber, was nicht funktioniert hat oder was sie anders machen würden. Tiefe und Ehrlichkeit sind wichtiger als das spezifische Projekt."
+    },
+    "rubric_keyphrases": [
+      "problem framing",
+      "data cleaning",
+      "feature engineering",
+      "model selection",
+      "evaluation",
+      "what didn't work",
+      "lessons learned",
+      "honest reflection"
+    ],
+    "follow_up_hint": "Ask about the part that didn't go as planned."
+  },
+  {
+    "id": "q06",
+    "category": "ml-fundamentals",
+    "difficulty": "hard",
+    "question": {
+      "en": "Explain p-value and a common misinterpretation of it.",
+      "hi": "p-वैल्यू को समझाइए और इसकी एक सामान्य गलत व्याख्या बताइए।",
+      "de": "Erklären Sie den p-Wert und eine häufige Fehlinterpretation davon."
+    },
+    "ideal_answer": {
+      "en": "A p-value is the probability of observing data this extreme (or more) under the null hypothesis — it is not the probability the null hypothesis is true, and it's not the probability the result is 'real.' Common misuse: treating p < 0.05 as proof of practical significance rather than just statistical significance under a chosen threshold.",
+      "hi": "p-वैल्यू शून्य परिकल्पना के तहत इतने चरम (या अधिक) डेटा को देखने की प्रायिकता है — यह इस बात की प्रायिकता नहीं है कि शून्य परिकल्पना सत्य है, और यह इस बात की प्रायिकता नहीं है कि परिणाम 'वास्तविक' है। सामान्य दुरुपयोग: p < 0.05 को चुनी गई सीमा के तहत केवल सांख्यिकीय महत्व के बजाय व्यावहारिक महत्व के प्रमाण के रूप में मानना।",
+      "de": "Ein p-Wert ist die Wahrscheinlichkeit, Daten so extrem (oder extremer) unter der Nullhypothese zu beobachten — er ist nicht die Wahrscheinlichkeit, dass die Nullhypothese wahr ist, und nicht die Wahrscheinlichkeit, dass das Ergebnis 'real' ist. Häufiger Missbrauch: p < 0,05 als Beweis für praktische Signifikanz zu behandeln, statt nur als statistische Signifikanz unter einem gewählten Schwellenwert."
+    },
+    "rubric_keyphrases": [
+      "probability under null hypothesis",
+      "not probability null is true",
+      "statistical significance",
+      "practical significance",
+      "p < 0.05",
+      "threshold",
+      "misinterpretation"
+    ],
+    "follow_up_hint": "Ask the difference between statistical and practical significance."
+  },
+  {
+    "id": "q07",
+    "category": "ml-fundamentals",
+    "difficulty": "medium",
+    "question": {
+      "en": "What is the purpose of an activation function, and why can't a network rely only on linear functions?",
+      "hi": "एक्टिवेशन फ़ंक्शन का उद्देश्य क्या है, और नेटवर्क केवल लीनियर फ़ंक्शन पर क्यों निर्भर नहीं रह सकता?",
+      "de": "Was ist der Zweck einer Aktivierungsfunktion, und warum kann ein Netzwerk nicht nur auf linearen Funktionen basieren?"
+    },
+    "ideal_answer": {
+      "en": "Activation functions introduce non-linearity, which is what lets a network approximate complex, non-linear relationships. Stacking purely linear layers collapses mathematically into a single linear transformation no matter how deep the network is, so without non-linearity, depth buys you nothing.",
+      "hi": "एक्टिवेशन फ़ंक्शन गैर-रैखिकता प्रस्तुत करते हैं, जो नेटवर्क को जटिल, गैर-रैखिक संबंधों का अनुमान लगाने में सक्षम बनाती है। पूरी तरह से लीनियर लेयर्स को स्टैक करना गणितीय रूप से एक एकल लीनियर ट्रांसफ़ॉर्मेशन में सिमट जाता है, चाहे नेटवर्क कितना भी गहरा हो, इसलिए गैर-रैखिकता के बिना, गहराई कोई लाभ नहीं देती।",
+      "de": "Aktivierungsfunktionen führen Nichtlinearität ein, wodurch ein Netzwerk komplexe, nichtlineare Beziehungen approximieren kann. Das Stapeln rein linearer Schichten kollabiert mathematisch in eine einzige lineare Transformation, unabhängig von der Tiefe des Netzwerks, daher bringt Tiefe ohne Nichtlinearität keinen Vorteil."
+    },
+    "rubric_keyphrases": [
+      "non-linearity",
+      "approximate complex relationships",
+      "linear layers collapse",
+      "single linear transformation",
+      "depth without non-linearity"
+    ],
+    "follow_up_hint": "Ask for an example of a non-linear activation function and a tradeoff of using it."
+  },
+  {
+    "id": "q08",
+    "category": "debugging",
+    "difficulty": "hard",
+    "question": {
+      "en": "Your model has 99% training accuracy but 60% validation accuracy. What's happening, and how do you fix it?",
+      "hi": "आपके मॉडल की ट्रेनिंग सटीकता 99% है लेकिन वैलिडेशन सटीकता 60% है। क्या हो रहा है, और आप इसे कैसे ठीक करेंगे?",
+      "de": "Ihr Modell hat 99% Trainingsgenauigkeit, aber 60% Validierungsgenauigkeit. Was passiert da, und wie beheben Sie das?"
+    },
+    "ideal_answer": {
+      "en": "This is classic overfitting (or a data leakage / train-test split bug, which should be ruled out first). Fixes include regularization, simplifying the model, more data or augmentation, cross-validation, and double-checking that no validation information leaked into training (e.g. via feature engineering done before the split).",
+      "hi": "यह क्लासिक ओवरफिटिंग है (या डेटा लीकेज / ट्रेन-टेस्ट स्प्लिट बग, जिसे पहले खारिज किया जाना चाहिए)। सुधारों में रेगुलराइज़ेशन, मॉडल को सरल बनाना, अधिक डेटा या ऑग्मेंटेशन, क्रॉस-वैलिडेशन, और यह दोबारा जाँचना शामिल है कि कोई वैलिडेशन जानकारी ट्रेनिंग में लीक तो नहीं हुई (जैसे स्प्लिट से पहले किया गया फ़ीचर इंजीनियरिंग)।",
+      "de": "Dies ist klassisches Overfitting (oder ein Datenleck / Train-Test-Split-Bug, der zuerst ausgeschlossen werden sollte). Lösungen umfassen Regularisierung, Vereinfachung des Modells, mehr Daten oder Augmentation, Kreuzvalidierung und die Überprüfung, dass keine Validierungsinformationen in das Training gelangt sind (z.B. durch Feature Engineering vor dem Split)."
+    },
+    "rubric_keyphrases": [
+      "overfitting",
+      "data leakage",
+      "train-test split bug",
+      "regularization",
+      "simplify model",
+      "data augmentation",
+      "cross-validation",
+      "feature engineering before split"
+    ],
+    "follow_up_hint": "Ask specifically how they'd check for leakage versus genuine overfitting."
+  },
+  {
+    "id": "q09",
+    "category": "ethics",
+    "difficulty": "medium",
+    "question": {
+      "en": "Why is it important to evaluate a model for bias, and how would you check for it?",
+      "hi": "मॉडल में पूर्वाग्रह (bias) का मूल्यांकन करना क्यों महत्वपूर्ण है, और आप इसकी जाँच कैसे करेंगे?",
+      "de": "Warum ist es wichtig, ein Modell auf Verzerrungen (Bias) zu überprüfen, und wie würden Sie das tun?"
+    },
+    "ideal_answer": {
+      "en": "Models trained on historical data can encode and amplify existing societal or sampling biases, producing unfair outcomes for specific groups even with high aggregate accuracy. Checking involves disaggregating performance metrics by relevant subgroups, auditing training data representativeness, and testing on held-out slices designed to surface disparities.",
+      "hi": "ऐतिहासिक डेटा पर प्रशिक्षित मॉडल मौजूदा सामाजिक या सैम्पलिंग पूर्वाग्रहों को एन्कोड और बढ़ा सकते हैं, उच्च समग्र सटीकता के बावजूद विशिष्ट समूहों के लिए अनुचित परिणाम उत्पन्न कर सकते हैं। जाँच में प्रासंगिक उपसमूहों द्वारा प्रदर्शन मेट्रिक्स को अलग करना, ट्रेनिंग डेटा प्रतिनिधित्व का ऑडिट करना, और असमानताओं को उजागर करने के लिए डिज़ाइन किए गए होल्ड-आउट स्लाइस पर परीक्षण करना शामिल है।",
+      "de": "Auf historischen Daten trainierte Modelle können bestehende gesellschaftliche oder Stichprobenverzerrungen kodieren und verstärken und trotz hoher Gesamtgenauigkeit unfaire Ergebnisse für bestimmte Gruppen produzieren. Die Überprüfung umfasst die Aufschlüsselung von Leistungsmetriken nach relevanten Untergruppen, die Prüfung der Repräsentativität der Trainingsdaten und Tests auf gehaltenen Teilmengen, die darauf ausgelegt sind, Disparitäten aufzudecken."
+    },
+    "rubric_keyphrases": [
+      "historical data bias",
+      "amplify societal bias",
+      "unfair outcomes",
+      "disaggregate metrics by subgroup",
+      "training data representativeness",
+      "held-out slices",
+      "disparities"
+    ],
+    "follow_up_hint": "Ask for a real or hypothetical example where this has gone wrong."
+  },
+  {
+    "id": "q10",
+    "category": "behavioral",
+    "difficulty": "easy",
+    "question": {
+      "en": "Tell me about a time you had to learn a new tool or technique quickly. How did you approach it?",
+      "hi": "मुझे उस समय के बारे में बताइए जब आपको जल्दी से कोई नया टूल या तकनीक सीखनी पड़ी। आपने इसे कैसे अपनाया?",
+      "de": "Erzählen Sie mir von einer Situation, in der Sie schnell ein neues Werkzeug oder eine neue Technik lernen mussten. Wie sind Sie vorgegangen?"
+    },
+    "ideal_answer": {
+      "en": "A strong answer shows a structured learning approach (docs, small experiments, asking for help appropriately), application to a real problem rather than just tutorial-following, and reflection on what they'd do faster next time.",
+      "hi": "एक अच्छा उत्तर संरचित सीखने का दृष्टिकोण दिखाता है (डॉक्स, छोटे प्रयोग, उचित रूप से मदद माँगना), केवल ट्यूटोरियल का अनुसरण करने के बजाय वास्तविक समस्या पर अनुप्रयोग, और अगली बार क्या तेज़ी से करेंगे इस पर चिंतन।",
+      "de": "Eine gute Antwort zeigt einen strukturierten Lernansatz (Dokumentation, kleine Experimente, angemessen um Hilfe bitten), Anwendung auf ein reales Problem statt nur Tutorials zu folgen, und Reflexion darüber, was sie beim nächsten Mal schneller machen würden."
+    },
+    "rubric_keyphrases": [
+      "structured learning",
+      "documentation",
+      "small experiments",
+      "asking for help",
+      "real problem application",
+      "reflection",
+      "what would do differently"
+    ],
+    "follow_up_hint": "Ask what they'd do differently if they had to learn it again today."
+  }
+]
